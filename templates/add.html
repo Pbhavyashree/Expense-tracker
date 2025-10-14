@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if edit_mode %}Edit Transaction{% else %}Add Transaction{% endif %} - Expense Tracker
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="card">
+        <h2>
+            {% if edit_mode %}
+                ✏️ Edit Transaction
+            {% else %}
+                ➕ Add New Transaction
+            {% endif %}
+        </h2>
+        
+        <form method="POST" onsubmit="return validateTransactionForm()">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Date *</label>
+                    <input type="date" 
+                           id="date" 
+                           name="date" 
+                           value="{% if transaction %}{{ transaction.date }}{% endif %}" 
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Amount *</label>
+                    <input type="number" 
+                           id="amount" 
+                           name="amount" 
+                           step="0.01" 
+                           min="0.01" 
+                           placeholder="0.00"
+                           value="{% if transaction %}{{ transaction.amount }}{% endif %}" 
+                           required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="type">Type *</label>
+                    <select id="type" name="type" required>
+                        <option value="">Select type...</option>
+                        <option value="income" {% if transaction and transaction.type == 'income' %}selected{% endif %}>Income</option>
+                        <option value="expense" {% if transaction and transaction.type == 'expense' %}selected{% endif %}>Expense</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category_id">Category</label>
+                    <select id="category_id" name="category_id">
+                        <option value="">No category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" 
+                                {% if transaction and transaction.category_id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" 
+                          name="description" 
+                          rows="3" 
+                          placeholder="Optional description...">{% if transaction %}{{ transaction.description }}{% endif %}</textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-success">
+                    {% if edit_mode %}💾 Update Transaction{% else %}➕ Add Transaction{% endif %}
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">❌ Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Tips Card -->
+    <div class="card">
+        <h2>💡 Tips</h2>
+        <ul style="padding-left: 1.5rem;">
+            <li><strong>Income:</strong> Salary, freelance work, investments, gifts received</li>
+            <li><strong>Expense:</strong> Food, transportation, bills, shopping, entertainment</li>
+            <li><strong>Categories:</strong> Help you organize and analyze your spending patterns</li>
+            <li><strong>Description:</strong> Add details to remember what the transaction was for</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+// Set today's date as default if adding new transaction
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    if (!dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+    
+    // Focus on amount field
+    document.getElementById('amount').focus();
+});
+
+// Form validation
+function validateTransactionForm() {
+    const amount = document.getElementById('amount').value;
+    const date = document.getElementById('date').value;
+    const type = document.getElementById('type').value;
+    
+    if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid amount greater than 0');
+        document.getElementById('amount').focus();
+        return false;
+    }
+    
+    if (!date) {
+        alert('Please select a date');
+        document.getElementById('date').focus();
+        return false;
+    }
+    
+    if (!type) {
+        alert('Please select a transaction type (Income or Expense)');
+        document.getElementById('type').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Dynamic styling based on transaction type
+document.getElementById('type').addEventListener('change', function() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (this.value === 'income') {
+        submitBtn.className = 'btn btn-success';
+    } else if (this.value === 'expense') {
+        submitBtn.className = 'btn btn-danger';
+    } else {
+        submitBtn.className = 'btn';
+    }
+});
+</script>
+{% endblock %}

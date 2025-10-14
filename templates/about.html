@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}About - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-info-circle"></i> About Personal Expense Tracker</h1>
+        <p class="lead">Your comprehensive personal finance management solution</p>
+    </div>
+
+    <div class="about-content">
+        <!-- Application Overview -->
+        <div class="about-section">
+            <h2><i class="fas fa-rocket"></i> Application Overview</h2>
+            <p>Personal Expense Tracker is a powerful, user-friendly web application designed to help you take complete control of your finances. Built with modern web technologies, it provides a comprehensive suite of tools for tracking, analyzing, and managing your personal finances.</p>
+            
+            <div class="tech-stack">
+                <h3>Built With:</h3>
+                <div class="tech-badges">
+                    <span class="badge tech-badge">Python Flask</span>
+                    <span class="badge tech-badge">SQLite Database</span>
+                    <span class="badge tech-badge">HTML5 & CSS3</span>
+                    <span class="badge tech-badge">JavaScript & Chart.js</span>
+                    <span class="badge tech-badge">Bootstrap Icons</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="about-section">
+            <h2><i class="fas fa-star"></i> Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h3>Transaction Management</h3>
+                    <p>Easily add, edit, and categorize your income and expenses with our intuitive interface.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Visual Reports</h3>
+                    <p>Beautiful charts and graphs to visualize your spending patterns and financial trends.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Category Management</h3>
+                    <p>Organize your expenses with customizable categories for better financial organization.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h3>Budget Tracking</h3>
+                    <p>Set budgets for different categories and get alerts when you're approaching limits.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Deep insights into your spending habits with personalized recommendations and trends.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Smart Search</h3>
+                    <p>Quickly find any transaction with powerful search and filtering capabilities.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <h3>Recurring Transactions</h3>
+                    <p>Automate regular income and expenses like salaries, rent, and subscriptions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Data Export</h3>
+                    <p>Export your financial data to CSV format for external analysis or backup.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security & Privacy -->
+        <div class="about-section">
+            <h2><i class="fas fa-shield-alt"></i> Security & Privacy</h2>
+            <div class="security-features">
+                <div class="security-item">
+                    <i class="fas fa-user-lock"></i>
+                    <div>
+                        <h4>Secure Authentication</h4>
+                        <p>Password-protected user accounts with secure session management.</p>
+                    </div>
+                </div>
+                <div class="security-item">
+                    <i class="fas fa-database"></i>
+                    <div>
+                        <h4>Data Isolation</h4>
+                        <p>Your financial data is completely private and isolated from other users.</p>
+                    </div>
+                </div>
+                <div class="security-item">
+                    <i class="fas fa-lock"></i>
+                    <div>
+                        <h4>Local Storage</h4>
+                        <p>All data is stored locally on your device for maximum privacy and security.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="about-section">
+            <h2><i class="fas fa-book-open"></i> How to Use</h2>
+            <div class="usage-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Sign Up & Login</h4>
+                        <p>Create your account and log in to access your personal financial dashboard.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Add Transactions</h4>
+                        <p>Start by adding your income and expenses with categories and descriptions.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Set Up Budgets</h4>
+                        <p>Create budgets for different spending categories to stay on track financially.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Monitor & Analyze</h4>
+                        <p>Use reports and analytics to understand your spending patterns and make informed decisions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Information -->
+        <div class="about-section">
+            <h2><i class="fas fa-code-branch"></i> Version Information</h2>
+            <div class="version-info">
+                <p><strong>Version:</strong> 2.0.0</p>
+                <p><strong>Release Date:</strong> September 2025</p>
+                <p><strong>Last Updated:</strong> September 2025</p>
+            </div>
+            
+            <div class="changelog">
+                <h3>What's New in Version 2.0</h3>
+                <ul>
+                    <li>✨ Advanced Budget Management with visual tracking</li>
+                    <li>📊 Comprehensive Analytics Dashboard with insights</li>
+                    <li>🔍 Powerful Search functionality across all transactions</li>
+                    <li>🔄 Recurring Transactions automation</li>
+                    <li>🎨 Enhanced user interface and experience</li>
+                    <li>📱 Improved responsive design for mobile devices</li>
+                    <li>⚡ Performance optimizations and bug fixes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contact & Support -->
+        <div class="about-section">
+            <h2><i class="fas fa-life-ring"></i> Support & Feedback</h2>
+            <p>This application is designed to help you achieve better financial control and awareness. If you have any questions, suggestions, or need help using any of the features, we're here to help!</p>
+            
+            <div class="support-features">
+                <div class="support-item">
+                    <i class="fas fa-question-circle"></i>
+                    <h4>Built-in Help</h4>
+                    <p>Look for help icons and tooltips throughout the application for quick assistance.</p>
+                </div>
+                <div class="support-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4>Tips & Suggestions</h4>
+                    <p>The analytics page provides personalized financial tips based on your spending patterns.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="about-footer">
+            <p class="text-center">
+                <i class="fas fa-heart text-danger"></i> 
+                Built with care to help you achieve your financial goals
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.about-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.about-section {
+    background: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.about-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.about-section h2 i {
+    margin-right: 0.5rem;
+    color: #3498db;
+}
+
+.tech-stack {
+    margin-top: 1.5rem;
+}
+
+.tech-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.tech-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid #3498db;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.security-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.security-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.security-item i {
+    font-size: 1.5rem;
+    color: #27ae60;
+    margin-top: 0.2rem;
+}
+
+.security-item h4 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.security-item p {
+    margin: 0;
+    color: #666;
+}
+
+.usage-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.step-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.step-content p {
+    margin: 0;
+    color: #666;
+}
+
+.version-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.version-info p {
+    margin: 0.5rem 0;
+    color: #2c3e50;
+}
+
+.changelog {
+    margin-top: 1.5rem;
+}
+
+.changelog h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.changelog ul {
+    list-style: none;
+    padding: 0;
+}
+
+.changelog li {
+    padding: 0.5rem 0;
+    color: #666;
+    border-bottom: 1px solid #eee;
+}
+
+.changelog li:last-child {
+    border-bottom: none;
+}
+
+.support-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.support-item {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.support-item i {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.support-item h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.about-footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 2rem;
+    border-top: 2px solid #eee;
+}
+
+.about-footer p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        padding: 1.5rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .usage-steps {
+        gap: 1rem;
+    }
+    
+    .step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        align-self: center;
+    }
+}
+</style>
+{% endblock %}

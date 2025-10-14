@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Categories - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="card">
+        <h2>🏷️ Category Management</h2>
+        
+        <!-- Add New Category Form -->
+        <form method="POST" action="{{ url_for('add_category') }}" class="category-form">
+            <div class="form-group" style="margin: 0; flex: 1;">
+                <input type="text" 
+                       name="name" 
+                       placeholder="Enter new category name..." 
+                       required 
+                       maxlength="50">
+            </div>
+            <button type="submit" class="btn btn-success">➕ Add Category</button>
+        </form>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
+        
+        <!-- Categories List -->
+        <h3>Existing Categories</h3>
+        {% if categories %}
+        <div class="categories-list">
+            {% for category in categories %}
+            <div class="category-item">
+                <div>
+                    <strong>{{ category.name }}</strong>
+                </div>
+                <div>
+                    <a href="{{ url_for('delete_category', category_id=category.id) }}" 
+                       class="btn btn-small btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this category? This will remove the category from all associated transactions.')">
+                        🗑️ Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No categories found. Add your first category above!</p>
+        {% endif %}
+    </div>
+    
+    <!-- Usage Tips -->
+    <div class="card">
+        <h2>💡 Category Tips</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div>
+                <h4>📈 Income Categories</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Salary</li>
+                    <li>Freelance</li>
+                    <li>Business</li>
+                    <li>Investments</li>
+                    <li>Gifts</li>
+                    <li>Side Hustle</li>
+                </ul>
+            </div>
+            <div>
+                <h4>💰 Expense Categories</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Food & Dining</li>
+                    <li>Transportation</li>
+                    <li>Shopping</li>
+                    <li>Bills & Utilities</li>
+                    <li>Entertainment</li>
+                    <li>Healthcare</li>
+                    <li>Travel</li>
+                    <li>Education</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h4>📝 Best Practices</h4>
+            <ul style="padding-left: 1.5rem; margin: 0;">
+                <li><strong>Keep it simple:</strong> Don't create too many categories - aim for 10-15 main ones</li>
+                <li><strong>Be consistent:</strong> Use the same category names for similar transactions</li>
+                <li><strong>Review regularly:</strong> Remove unused categories and consolidate similar ones</li>
+                <li><strong>Start broad:</strong> You can always add more specific categories later</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Category Usage Stats -->
+    <div class="card">
+        <h2>📊 Category Usage</h2>
+        <p>See how your categories are being used in the <a href="{{ url_for('reports') }}">Reports</a> section.</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on the category input field
+    const categoryInput = document.querySelector('input[name="name"]');
+    if (categoryInput) {
+        categoryInput.focus();
+    }
+    
+    // Add validation for category name
+    const form = document.querySelector('.category-form');
+    form.addEventListener('submit', function(e) {
+        const input = this.querySelector('input[name="name"]');
+        const value = input.value.trim();
+        
+        if (!value) {
+            e.preventDefault();
+            alert('Please enter a category name');
+            input.focus();
+            return false;
+        }
+        
+        if (value.length > 50) {
+            e.preventDefault();
+            alert('Category name must be 50 characters or less');
+            input.focus();
+            return false;
+        }
+        
+        // Check for duplicate names (case insensitive)
+        const existingCategories = Array.from(document.querySelectorAll('.category-item strong'))
+            .map(el => el.textContent.toLowerCase());
+        
+        if (existingCategories.includes(value.toLowerCase())) {
+            e.preventDefault();
+            alert('A category with this name already exists');
+            input.focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

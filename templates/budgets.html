@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Add New Budget -->
+    <div class="card">
+        <h2>💰 Budget Management</h2>
+        <p>Set monthly spending limits for your categories and track your progress.</p>
+        
+        <form method="POST" action="{{ url_for('add_budget') }}" class="budget-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="month">Month *</label>
+                    <input type="month" 
+                           id="month" 
+                           name="month" 
+                           value="{{ current_month }}"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category_id">Category *</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value="">Select category...</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount_limit">Budget Limit (€) *</label>
+                    <input type="number" 
+                           id="amount_limit" 
+                           name="amount_limit" 
+                           step="0.01" 
+                           min="0.01" 
+                           placeholder="500.00"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-success">💾 Set Budget</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Current Month Budget Status -->
+    {% if budget_status %}
+    <div class="card">
+        <h2>📊 Current Month Budget Status</h2>
+        <div class="budget-grid">
+            {% for status in budget_status %}
+            <div class="budget-card {% if status.over_budget %}over-budget{% elif status.percentage > 80 %}warning{% else %}good{% endif %}">
+                <div class="budget-header">
+                    <h3>{{ status.budget.category_name }}</h3>
+                    <div class="budget-percentage">{{ "%.1f"|format(status.percentage) }}%</div>
+                </div>
+                
+                <div class="budget-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ [status.percentage, 100]|min }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="budget-details">
+                    <div class="budget-amounts">
+                        <span class="spent">€{{ "%.2f"|format(status.spent) }} spent</span>
+                        <span class="limit">€{{ "%.2f"|format(status.budget.amount_limit) }} limit</span>
+                    </div>
+                    
+                    {% if status.remaining >= 0 %}
+                        <div class="remaining positive">€{{ "%.2f"|format(status.remaining) }} remaining</div>
+                    {% else %}
+                        <div class="remaining negative">€{{ "%.2f"|format(-status.remaining) }} over budget</div>
+                    {% endif %}
+                </div>
+                
+                <div class="budget-actions">
+                    <a href="{{ url_for('delete_budget', budget_id=status.budget.id) }}" 
+                       class="btn btn-small btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this budget?')">
+                        🗑️ Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Budgets History -->
+    <div class="card">
+        <h2>📋 Budget History</h2>
+        {% if budgets %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Category</th>
+                        <th>Budget Limit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.month }}</td>
+                        <td>{{ budget.category_name or 'All Categories' }}</td>
+                        <td class="amount-income">€{{ "%.2f"|format(budget.amount_limit) }}</td>
+                        <td>
+                            <a href="{{ url_for('delete_budget', budget_id=budget.id) }}" 
+                               class="btn btn-small btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this budget?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2rem;">
+            <p style="font-size: 1.1rem; color: #666;">No budgets set yet.</p>
+            <p>Create your first budget above to start tracking your spending limits!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Budget Tips -->
+    <div class="card">
+        <h2>💡 Budget Tips</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div>
+                <h4>🎯 Setting Smart Budgets</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Review your last 3 months of spending</li>
+                    <li>Start with realistic, achievable limits</li>
+                    <li>Leave room for unexpected expenses</li>
+                    <li>Set separate budgets for needs vs wants</li>
+                </ul>
+            </div>
+            <div>
+                <h4>📈 Staying on Track</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Check your budget progress weekly</li>
+                    <li>Adjust budgets based on life changes</li>
+                    <li>Use the 50/30/20 rule as a starting point</li>
+                    <li>Track both fixed and variable expenses</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.budget-form {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.budget-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.budget-card.good {
+    border-left: 5px solid #28a745;
+}
+
+.budget-card.warning {
+    border-left: 5px solid #ffc107;
+    background: #fffbf0;
+}
+
+.budget-card.over-budget {
+    border-left: 5px solid #dc3545;
+    background: #fff5f5;
+}
+
+.budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.budget-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.budget-percentage {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #666;
+}
+
+.budget-card.warning .budget-percentage {
+    color: #856404;
+}
+
+.budget-card.over-budget .budget-percentage {
+    color: #721c24;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #28a745;
+    transition: width 0.3s ease;
+}
+
+.budget-card.warning .progress-fill {
+    background: #ffc107;
+}
+
+.budget-card.over-budget .progress-fill {
+    background: #dc3545;
+}
+
+.budget-amounts {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.remaining {
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.remaining.positive {
+    color: #28a745;
+    background: #d4edda;
+}
+
+.remaining.negative {
+    color: #721c24;
+    background: #f8d7da;
+}
+
+.budget-actions {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .budget-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .budget-amounts {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current month as default
+    const monthInput = document.getElementById('month');
+    if (!monthInput.value) {
+        const now = new Date();
+        const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        monthInput.value = currentMonth;
+    }
+    
+    // Form validation
+    const form = document.querySelector('.budget-form form');
+    form.addEventListener('submit', function(e) {
+        const amount = document.getElementById('amount_limit').value;
+        if (!amount || parseFloat(amount) <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid budget amount greater than 0');
+            document.getElementById('amount_limit').focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

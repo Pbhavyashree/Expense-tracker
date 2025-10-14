@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Expense Tracker</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+        }
+        
+        .auth-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .auth-links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .password-requirements {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card fade-in">
+            <div class="auth-header">
+                <h1>💰 Expense Tracker</h1>
+                <p>Create your account to start tracking expenses!</p>
+            </div>
+            
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" onsubmit="return validateRegisterForm()">
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Choose a unique username"
+                           required 
+                           autofocus
+                           minlength="3"
+                           maxlength="50">
+                    <div class="password-requirements">Must be 3-50 characters long</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           placeholder="Enter your email address"
+                           required
+                           maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Create a strong password"
+                           required
+                           minlength="6">
+                    <div class="password-requirements">Must be at least 6 characters long</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password *</label>
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           placeholder="Confirm your password"
+                           required>
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-bottom: 1rem;">
+                    🚀 Create Account
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here</a></p>
+                <p style="margin-top: 1rem; text-align: center;"><a href="{{ url_for('about') }}" style="color: #666; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-info-circle"></i> About Expense Tracker</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateRegisterForm() {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (!username) {
+                alert('Please enter a username');
+                document.getElementById('username').focus();
+                return false;
+            }
+            
+            if (username.length < 3) {
+                alert('Username must be at least 3 characters long');
+                document.getElementById('username').focus();
+                return false;
+            }
+            
+            if (!email) {
+                alert('Please enter your email address');
+                document.getElementById('email').focus();
+                return false;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address');
+                document.getElementById('email').focus();
+                return false;
+            }
+            
+            if (!password) {
+                alert('Please enter a password');
+                document.getElementById('password').focus();
+                return false;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                document.getElementById('password').focus();
+                return false;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                document.getElementById('confirm_password').focus();
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Real-time password confirmation
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#e74c3c';
+            } else {
+                this.style.borderColor = '#ddd';
+            }
+        });
+        
+        // Auto-focus management
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+    </script>
+</body>
+</html>

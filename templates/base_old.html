@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('dashboard') }}" class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Expense Tracker</span>
+            </a>
+            
+            <button class="mobile-menu-toggle" id="mobileToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            {% if session.username %}
+            <div class="nav-content" id="navContent">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a></li>
+                    <li><a href="{{ url_for('add_transaction') }}" class="nav-link {% if request.endpoint == 'add_transaction' %}active{% endif %}">
+                        <span class="nav-icon">➕</span>
+                        <span class="nav-text">Add</span>
+                    </a></li>
+                    <li><a href="{{ url_for('categories') }}" class="nav-link {% if request.endpoint == 'categories' %}active{% endif %}">
+                        <span class="nav-icon">🏷️</span>
+                        <span class="nav-text">Categories</span>
+                    </a></li>
+                    <li><a href="{{ url_for('budgets') }}" class="nav-link {% if request.endpoint == 'budgets' %}active{% endif %}">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Budgets</span>
+                    </a></li>
+                    <li><a href="{{ url_for('analytics') }}" class="nav-link {% if request.endpoint == 'analytics' %}active{% endif %}">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Analytics</span>
+                    </a></li>
+                    <li><a href="{{ url_for('recurring_transactions') }}" class="nav-link {% if request.endpoint == 'recurring_transactions' %}active{% endif %}">
+                        <span class="nav-icon">🔄</span>
+                        <span class="nav-text">Recurring</span>
+                    </a></li>
+                    <li><a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Reports</span>
+                    </a></li>
+                </ul>
+                
+                <div class="nav-right">
+                    <div class="search-container">
+                        <form method="GET" action="{{ url_for('search') }}" class="search-form">
+                            <input type="text" 
+                                   name="q" 
+                                   placeholder="🔍 Search..." 
+                                   class="search-input"
+                                   value="{{ request.args.get('q', '') }}">
+                        </form>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <div class="user-info">
+                            <span class="user-avatar">👤</span>
+                            <span class="username">{{ session.username }}</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="{{ url_for('export_csv') }}" class="dropdown-item">
+                                <span class="dropdown-icon">📥</span>
+                                Export Data
+                            </a>
+                            <a href="{{ url_for('about') }}" class="dropdown-item">
+                                <span class="dropdown-icon">ℹ️</span>
+                                About
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                                <span class="dropdown-icon">🚪</span>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="nav-content guest-nav">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('about') }}" class="nav-link">
+                        <span class="nav-icon">ℹ️</span>
+                        <span class="nav-text">About</span>
+                    </a></li>
+                    <li><a href="{{ url_for('login') }}" class="nav-link login-btn">
+                        <span class="nav-icon">🔑</span>
+                        <span class="nav-text">Login</span>
+                    </a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    
+    <!-- Navbar JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobileToggle');
+            const navContent = document.getElementById('navContent');
+            
+            if (mobileToggle && navContent) {
+                mobileToggle.addEventListener('click', function() {
+                    navContent.classList.toggle('active');
+                    
+                    // Animate hamburger menu
+                    const spans = mobileToggle.querySelectorAll('span');
+                    if (navContent.classList.contains('active')) {
+                        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                        spans[1].style.opacity = '0';
+                        spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+                    } else {
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileToggle.contains(e.target) && !navContent.contains(e.target)) {
+                        navContent.classList.remove('active');
+                        const spans = mobileToggle.querySelectorAll('span');
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                });
+            }
+            
+            // Add smooth scrolling to nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    // Close mobile menu if open
+                    if (navContent && navContent.classList.contains('active')) {
+                        navContent.classList.remove('active');
+                        const spans = mobileToggle.querySelectorAll('span');
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                });
+            });
+            
+            // Add search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.closest('form').submit();
+                    }
+                });
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if session.username %}
+    <!-- Sidebar for logged-in users -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Expense Tracker</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <span class="toggle-icon">◀</span>
+            </button>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-avatar">👤</div>
+            <div class="user-details">
+                <div class="user-name">{{ session.username }}</div>
+                <div class="user-status">Online</div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-group">
+                    <span class="nav-group-title">Main</span>
+                </li>
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_transaction') }}" class="nav-link {% if request.endpoint == 'add_transaction' %}active{% endif %}">
+                        <span class="nav-icon">➕</span>
+                        <span class="nav-text">Add Transaction</span>
+                    </a>
+                </li>
+                
+                <li class="nav-group">
+                    <span class="nav-group-title">Manage</span>
+                </li>
+                <li>
+                    <a href="{{ url_for('categories') }}" class="nav-link {% if request.endpoint == 'categories' %}active{% endif %}">
+                        <span class="nav-icon">🏷️</span>
+                        <span class="nav-text">Categories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('budgets') }}" class="nav-link {% if request.endpoint == 'budgets' %}active{% endif %}">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Budgets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('recurring_transactions') }}" class="nav-link {% if request.endpoint == 'recurring_transactions' %}active{% endif %}">
+                        <span class="nav-icon">🔄</span>
+                        <span class="nav-text">Recurring</span>
+                    </a>
+                </li>
+                
+                <li class="nav-group">
+                    <span class="nav-group-title">Analyze</span>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}" class="nav-link {% if request.endpoint == 'analytics' %}active{% endif %}">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Reports</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('search') }}" class="nav-link {% if request.endpoint == 'search' %}active{% endif %}">
+                        <span class="nav-icon">🔍</span>
+                        <span class="nav-text">Search</span>
+                    </a>
+                </li>
+                
+                <li class="nav-group">
+                    <span class="nav-group-title">Account</span>
+                </li>
+                <li>
+                    <a href="{{ url_for('export_csv') }}" class="nav-link">
+                        <span class="nav-icon">📥</span>
+                        <span class="nav-text">Export Data</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
+                        <span class="nav-icon">ℹ️</span>
+                        <span class="nav-text">About</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="nav-link logout-link">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- Top header with search -->
+    <header class="top-header">
+        <div class="header-left">
+            <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+        </div>
+        
+        <div class="header-right">
+            <div class="search-container">
+                <form method="GET" action="{{ url_for('search') }}" class="search-form">
+                    <input type="text" 
+                           name="q" 
+                           placeholder="🔍 Search transactions..." 
+                           class="search-input"
+                           value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    {% else %}
+    
+    <!-- Simple navbar for guest users -->
+    <nav class="guest-navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('about') }}" class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Expense Tracker</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="{{ url_for('about') }}" class="nav-link">About</a>
+                <a href="{{ url_for('login') }}" class="nav-link login-btn">Login</a>
+                <a href="{{ url_for('register') }}" class="nav-link register-btn">Register</a>
+            </div>
+        </div>
+    </nav>
+    
+    {% endif %}
+
+    <!-- Main content area (works for both logged-in and guest users) -->
+    {% if session.username %}
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper">
+    {% else %}
+    <main class="guest-content">
+        <div class="container">
+    {% endif %}
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    
+    <!-- Sidebar JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const mainContent = document.getElementById('mainContent');
+            
+            // Desktop sidebar toggle
+            if (sidebarToggle && sidebar && mainContent) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('sidebar-collapsed');
+                    
+                    // Update toggle icon
+                    const toggleIcon = sidebarToggle.querySelector('.toggle-icon');
+                    if (sidebar.classList.contains('collapsed')) {
+                        toggleIcon.textContent = '▶';
+                    } else {
+                        toggleIcon.textContent = '◀';
+                    }
+                });
+            }
+            
+            // Mobile sidebar toggle
+            if (mobileSidebarToggle && sidebar) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('mobile-open');
+                    
+                    // Animate hamburger menu
+                    const spans = mobileSidebarToggle.querySelectorAll('span');
+                    if (sidebar.classList.contains('mobile-open')) {
+                        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                        spans[1].style.opacity = '0';
+                        spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+                    } else {
+                        spans[0].style.transform = 'none';
+                        spans[1].style.opacity = '1';
+                        spans[2].style.transform = 'none';
+                    }
+                });
+            }
+            
+            // Close mobile sidebar when clicking outside
+            document.addEventListener('click', function(e) {
+                if (sidebar && mobileSidebarToggle && 
+                    !sidebar.contains(e.target) && 
+                    !mobileSidebarToggle.contains(e.target) &&
+                    sidebar.classList.contains('mobile-open')) {
+                    
+                    sidebar.classList.remove('mobile-open');
+                    const spans = mobileSidebarToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                }
+            });
+            
+            // Add search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.closest('form').submit();
+                    }
+                });
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

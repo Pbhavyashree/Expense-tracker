@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Search - Expense Tracker{% endblock %}
+{% block page_title %}Search Transactions{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Search Form -->
+    <div class="card">
+        <h2>🔍 Search Transactions</h2>
+        <p>Search through your transactions by description, category, amount, or date.</p>
+        
+        <form method="GET" action="{{ url_for('search') }}" class="search-form">
+            <div class="search-input-group">
+                <input type="text" 
+                       name="q" 
+                       value="{{ query }}" 
+                       placeholder="Search transactions..." 
+                       class="search-input"
+                       autocomplete="off">
+                <button type="submit" class="btn btn-success">🔍 Search</button>
+            </div>
+        </form>
+        
+        {% if query %}
+        <div class="search-info">
+            <p><strong>{{ transactions|length }}</strong> result(s) found for "<strong>{{ query }}</strong>"</p>
+            <a href="{{ url_for('search') }}" class="btn btn-secondary btn-small">Clear Search</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Search Results -->
+    {% if query %}
+    <div class="card">
+        <h2>📋 Search Results</h2>
+        
+        {% if transactions %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>
+                            {% if query.lower() in transaction.description.lower() %}
+                                {{ transaction.description|replace(query, '<mark>' + query + '</mark>')|safe }}
+                            {% else %}
+                                {{ transaction.description or 'No description' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.category_name and query.lower() in transaction.category_name.lower() %}
+                                {{ transaction.category_name|replace(query, '<mark>' + query + '</mark>')|safe }}
+                            {% else %}
+                                {{ transaction.category_name or 'No category' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.type == 'income' %}
+                                <span style="color: #2ecc71; font-weight: 600;">Income</span>
+                            {% else %}
+                                <span style="color: #e74c3c; font-weight: 600;">Expense</span>
+                            {% endif %}
+                        </td>
+                        <td class="amount-{{ transaction.type }}">
+                            {% if query in transaction.amount|string %}
+                                €{{ ("%.2f"|format(transaction.amount))|replace(query, '<mark>' + query + '</mark>')|safe }}
+                            {% else %}
+                                €{{ "%.2f"|format(transaction.amount) }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('edit_transaction', transaction_id=transaction.id) }}" 
+                               class="btn btn-small btn-secondary">Edit</a>
+                            <a href="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" 
+                               class="btn btn-small btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2rem;">
+            <p style="font-size: 1.1rem; color: #666;">No transactions found matching "{{ query }}".</p>
+            <p>Try searching with different keywords or check your spelling.</p>
+            <div style="margin-top: 1rem;">
+                <a href="{{ url_for('add_transaction') }}" class="btn btn-success">Add New Transaction</a>
+                <a href="{{ url_for('reports') }}" class="btn btn-secondary">Browse All Transactions</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Search Tips -->
+    <div class="card">
+        <h2>💡 Search Tips</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div>
+                <h4>🔍 What You Can Search For:</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li><strong>Description:</strong> "grocery", "gas", "salary"</li>
+                    <li><strong>Category:</strong> "food", "transportation", "income"</li>
+                    <li><strong>Amount:</strong> "100", "50.00", "25"</li>
+                    <li><strong>Date:</strong> "2025-09", "2025-09-26"</li>
+                </ul>
+            </div>
+            <div>
+                <h4>🎯 Search Examples:</h4>
+                <ul style="padding-left: 1.5rem;">
+                    <li><strong>"starbucks"</strong> - Find all Starbucks purchases</li>
+                    <li><strong>"food"</strong> - Find food-related expenses</li>
+                    <li><strong>"100"</strong> - Find transactions with €100</li>
+                    <li><strong>"september"</strong> - Find September transactions</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h4>🚀 Pro Tips:</h4>
+            <ul style="padding-left: 1.5rem; margin: 0;">
+                <li>Search is case-insensitive - "FOOD" and "food" work the same</li>
+                <li>Partial matches work - "gro" will find "grocery"</li>
+                <li>Use specific terms for better results</li>
+                <li>Try different keywords if you don't find what you're looking for</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card">
+        <h2>🔗 Quick Actions</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ url_for('reports') }}" class="btn">📊 View All Transactions</a>
+            <a href="{{ url_for('add_transaction') }}" class="btn btn-success">➕ Add New Transaction</a>
+            <a href="{{ url_for('categories') }}" class="btn btn-secondary">🏷️ Manage Categories</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-form {
+    margin-bottom: 2rem;
+}
+
+.search-input-group {
+    display: flex;
+    gap: 1rem;
+    max-width: 600px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.search-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-info p {
+    margin: 0;
+    color: #666;
+}
+
+mark {
+    background: #ffeb3b;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .search-input-group {
+        flex-direction: column;
+        max-width: 100%;
+    }
+    
+    .search-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on search input
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+    
+    // Add search suggestions (you could expand this with real data)
+    searchInput.addEventListener('input', function() {
+        // You could add autocomplete/suggestions here
+    });
+});
+</script>
+{% endblock %}

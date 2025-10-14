@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Expense Tracker{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Key Insights -->
+    <div class="card">
+        <h2>📊 Financial Insights</h2>
+        <div class="insights-grid">
+            <div class="insight-card">
+                <div class="insight-icon">💰</div>
+                <div class="insight-content">
+                    <h3>Average Savings Rate</h3>
+                    <div class="insight-value">{{ "%.1f"|format(avg_savings_rate) }}%</div>
+                    <div class="insight-label">Last 6 months</div>
+                </div>
+            </div>
+            
+            <div class="insight-card">
+                <div class="insight-icon">📈</div>
+                <div class="insight-content">
+                    <h3>Total Transactions</h3>
+                    <div class="insight-value">{{ total_transactions }}</div>
+                    <div class="insight-label">All time</div>
+                </div>
+            </div>
+            
+            <div class="insight-card">
+                <div class="insight-icon">🏷️</div>
+                <div class="insight-content">
+                    <h3>Top Category</h3>
+                    <div class="insight-value">{{ category_spending[0].name if category_spending }}</div>
+                    <div class="insight-label">€{{ "%.0f"|format(category_spending[0].total) }} spent</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Trends Chart -->
+    <div class="card">
+        <h2>📈 Monthly Trends with Line Charts (Last 12 Months)</h2>
+        <div class="analytics-chart-container">
+            <canvas id="trendsChart"></canvas>
+        </div>
+        
+        {% if monthly_trends %}
+        <div class="trends-summary">
+            <h4>Trend Analysis:</h4>
+            <div class="trend-items">
+                {% for trend in monthly_trends[:3] %}
+                <div class="trend-item">
+                    <strong>{{ trend.month }}:</strong>
+                    Income €{{ "%.0f"|format(trend.income) }}, 
+                    Expenses €{{ "%.0f"|format(trend.expense) }}, 
+                    <span class="{% if trend.income - trend.expense >= 0 %}positive{% else %}negative{% endif %}">
+                        Net {{ "%.0f"|format(trend.income - trend.expense) }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Category Spending Analysis -->
+    <div class="card">
+        <h2>🏷️ Spending by Category (Last 6 Months)</h2>
+        {% if category_spending %}
+        <div class="category-analysis">
+            {% for category in category_spending %}
+            <div class="category-row">
+                <div class="category-info">
+                    <div class="category-name">{{ category.name }}</div>
+                    <div class="category-stats">
+                        {{ category.count }} transactions • Avg €{{ "%.0f"|format(category.total/category.count) }}
+                    </div>
+                </div>
+                <div class="category-amount">€{{ "%.2f"|format(category.total) }}</div>
+                <div class="category-bar">
+                                                    <div class="category-fill" style="width: {{ [category.total / category_spending[0].total * 100, 100]|min }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Top Spending Days -->
+    <div class="card">
+        <h2>💸 Highest Spending Days (Last 3 Months)</h2>
+        {% if top_spending_days %}
+        <div class="spending-days">
+            {% for day in top_spending_days %}
+            <div class="spending-day">
+                <div class="day-date">{{ day.date }}</div>
+                <div class="day-amount">€{{ "%.2f"|format(day.daily_expense) }}</div>
+                <div class="day-bar">
+                    <div class="day-fill" style="width: {{ (day.daily_expense / top_spending_days[0].daily_expense * 100) }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No spending data available for analysis.</p>
+        {% endif %}
+    </div>
+
+    <!-- Average Spending Analysis -->
+    <div class="card">
+        <h2>📊 Average Spending by Category</h2>
+        {% if avg_spending %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Average Amount</th>
+                        <th>Minimum</th>
+                        <th>Maximum</th>
+                        <th>Range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in avg_spending %}
+                    <tr>
+                        <td><strong>{{ category.name }}</strong></td>
+                        <td class="amount-expense">€{{ "%.2f"|format(category.avg_amount) }}</td>
+                        <td>€{{ "%.2f"|format(category.min_amount) }}</td>
+                        <td>€{{ "%.2f"|format(category.max_amount) }}</td>
+                        <td>€{{ "%.2f"|format(category.max_amount - category.min_amount) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>Not enough data for average spending analysis. Add more transactions to see insights!</p>
+        {% endif %}
+    </div>
+
+    <!-- Savings Analysis -->
+    <div class="card">
+        <h2>💹 Savings Analysis</h2>
+        {% if savings_data %}
+        <div class="savings-chart">
+            <h4>Monthly Savings Rate:</h4>
+            {% for month in savings_data %}
+            {% set savings = month.income - month.expense %}
+            {% set rate = (savings / month.income * 100) if month.income > 0 else 0 %}
+            <div class="savings-month">
+                <div class="savings-info">
+                    <strong>{{ month.month }}</strong>
+                    <span class="savings-rate {% if rate >= 20 %}good{% elif rate >= 10 %}okay{% else %}poor{% endif %}">
+                        {{ "%.1f"|format(rate) }}%
+                    </span>
+                </div>
+                <div class="savings-details">
+                    Income: €{{ "%.0f"|format(month.income) }} • 
+                    Expenses: €{{ "%.0f"|format(month.expense) }} • 
+                    <span class="{% if savings >= 0 %}positive{% else %}negative{% endif %}">
+                        Saved: €{{ "%.0f"|format(savings) }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h4>📈 Savings Goals:</h4>
+            <ul style="padding-left: 1.5rem; margin: 0;">
+                <li><strong>Good:</strong> 20%+ savings rate (Emergency fund building)</li>
+                <li><strong>Okay:</strong> 10-20% savings rate (On track for most goals)</li>
+                <li><strong>Needs Improvement:</strong> &lt;10% savings rate (Consider budget adjustments)</li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Action Items -->
+    <div class="card">
+        <h2>🎯 Recommendations</h2>
+        <div class="recommendations">
+            {% if avg_savings_rate < 10 %}
+            <div class="recommendation urgent">
+                <h4>🚨 Improve Savings Rate</h4>
+                <p>Your current savings rate is {{ "%.1f"|format(avg_savings_rate) }}%. Consider reviewing your highest expense categories and finding areas to cut back.</p>
+            </div>
+            {% endif %}
+            
+            {% if category_spending and category_spending|length > 0 %}
+            <div class="recommendation">
+                <h4>🏷️ Focus on {{ category_spending[0].name }}</h4>
+                <p>This is your largest expense category at €{{ "%.0f"|format(category_spending[0].total) }}. Look for opportunities to optimize spending here.</p>
+            </div>
+            {% endif %}
+            
+            <div class="recommendation">
+                <h4>📊 Set Monthly Budgets</h4>
+                <p>Based on your spending patterns, consider setting budgets for your top 3-5 expense categories. Visit the <a href="{{ url_for('budgets') }}">Budgets</a> page to get started.</p>
+            </div>
+            
+            <div class="recommendation">
+                <h4>📈 Track Regularly</h4>
+                <p>Check your analytics weekly to stay on top of your financial goals. Consistent tracking leads to better financial decisions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1.5rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 4px solid #667eea;
+}
+
+.insight-icon {
+    font-size: 2rem;
+}
+
+.insight-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.insight-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.trends-summary {
+    margin-top: 2rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.trend-items {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.trend-item {
+    padding: 0.5rem;
+    background: white;
+    border-radius: 5px;
+}
+
+.positive {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.negative {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.category-analysis {
+    display: grid;
+    gap: 1rem;
+}
+
+.category-row {
+    display: grid;
+    grid-template-columns: 1fr auto 200px;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.category-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.category-stats {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.category-amount {
+    font-weight: 600;
+    color: #e74c3c;
+}
+
+.category-bar {
+    background: #e9ecef;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.category-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.spending-days {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.spending-day {
+    display: grid;
+    grid-template-columns: 100px 100px 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.day-amount {
+    font-weight: 600;
+    color: #e74c3c;
+}
+
+.day-bar {
+    background: #e9ecef;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.day-fill {
+    height: 100%;
+    background: #e74c3c;
+    transition: width 0.3s ease;
+}
+
+.savings-chart {
+    display: grid;
+    gap: 1rem;
+}
+
+.savings-month {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.savings-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.savings-rate {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.savings-rate.good {
+    background: #d4edda;
+    color: #155724;
+}
+
+.savings-rate.okay {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.savings-rate.poor {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.savings-details {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.recommendations {
+    display: grid;
+    gap: 1rem;
+}
+
+.recommendation {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #667eea;
+}
+
+.recommendation.urgent {
+    background: #fff5f5;
+    border-left-color: #dc3545;
+}
+
+.recommendation h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.recommendation p {
+    margin: 0;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .category-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .spending-day {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .savings-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+// Data for trends chart
+const trendsData = [
+    {% for trend in monthly_trends %}
+    {
+        month: "{{ trend.month }}",
+        income: {{ trend.income or 0 }},
+        expense: {{ trend.expense or 0 }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize trends chart
+    if (trendsData.length > 0) {
+        const chart = new ExpenseChart('trendsChart');
+        chart.drawMonthlyChart(trendsData.reverse()); // Reverse to show oldest first
+    }
+});
+</script>
+{% endblock %}
